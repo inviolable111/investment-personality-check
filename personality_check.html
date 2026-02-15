@@ -1,0 +1,328 @@
+<div id="investalo-app-wrapper">
+  <div id="name-container" class="iv-card active">
+    <div class="bot-header">
+      <img src="https://www.investalo.de/wp-content/uploads/ohnehintergrund_Quiz.png" alt="Investalo Bot" class="bot-img-large">
+    </div>
+    <h2 class="iv-title">Der Investment-Check</h2>
+    <p class="iv-subtitle">Hi! Bevor wir starten: Wie darf ich dich nennen?</p>
+    
+    <div class="input-wrapper">
+        <input type="text" id="user-name" placeholder="Dein Vorname..." class="iv-input" autocomplete="off">
+    </div>
+    
+    <button id="start-quiz-btn" class="opt-btn-primary pulsate">Analyse starten 🚀</button>
+  </div>
+
+  <div id="quiz-container" class="iv-card hidden">
+    <div class="bot-header">
+      <img src="https://www.investalo.de/wp-content/uploads/ohnehintergrund_Quiz.png" alt="Investalo Bot" class="bot-img-mini">
+    </div>
+    
+    <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+
+    <div id="quiz-content-stepper">
+        <div id="bot-bubble" class="hidden"><span id="bot-text"></span></div>
+        <h2 id="q-text" class="iv-question-text">Lade Analyse...</h2>
+        <div id="options-wrapper"></div>
+    </div>
+  </div>
+
+  <div id="result-container" class="iv-card hidden"></div>
+</div>
+
+<style>
+  :root { 
+    --primary: #00e5ff; 
+    --primary-hover: #00d1e8;
+    --primary-glow: rgba(0, 229, 255, 0.4);
+    --primary-soft: #f0fdff;
+    --dark: #1a252f; 
+    --text: #445465;
+    --white: #ffffff;
+    --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  #investalo-app-wrapper { font-family: 'Segoe UI', Roboto, sans-serif; width: 100%; display: flex; justify-content: center; padding: 40px 20px; color: var(--text); background: #f8fafc; }
+  
+  /* Container größer & Goldstandard Design */
+  .iv-card { 
+    background: var(--white) !important; 
+    border-radius: 45px; 
+    padding: 60px 50px; 
+    box-shadow: 0 30px 80px rgba(0,0,0,0.1); 
+    width: 100%; 
+    max-width: 750px; /* Deutlich breiter */
+    text-align: center; 
+    border: 1px solid rgba(0, 229, 255, 0.2);
+    border-bottom: 15px solid var(--primary); 
+    position: relative; 
+    opacity: 0;
+    transform: translateY(20px);
+    transition: var(--transition);
+  }
+
+  .iv-card.active { opacity: 1; transform: translateY(0); }
+
+  .iv-title { font-size: 2.2rem; color: var(--dark); font-weight: 800; margin-bottom: 15px; letter-spacing: -0.5px; }
+  .iv-subtitle { font-size: 1.2rem; color: #7f8c8d; margin-bottom: 40px; }
+  
+  /* PERFEKT RUNDES NAMENSFELD MIT CYAN GLOW */
+  .input-wrapper { display: flex; justify-content: center; margin-bottom: 25px; }
+  .iv-input { 
+    font-size: 22px; 
+    padding: 25px 40px; 
+    width: 100%; 
+    max-width: 480px;
+    border-radius: 100px !important; /* Maximale Rundung */
+    border: 3px solid var(--primary) !important; 
+    text-align: center; 
+    outline: none; 
+    transition: var(--transition);
+    background: #ffffff;
+    color: var(--dark);
+    font-weight: 600;
+    box-shadow: 0 10px 25px var(--primary-glow);
+  }
+  .iv-input:focus { 
+    box-shadow: 0 15px 40px var(--primary-glow);
+    transform: scale(1.02);
+    background: #fff;
+  }
+
+  .iv-question-text { font-size: 1.6rem !important; color: var(--dark); margin-bottom: 35px; font-weight: 700; line-height: 1.4; }
+  
+  #bot-bubble { 
+    background: var(--primary-soft); 
+    padding: 30px; 
+    border-radius: 30px; 
+    margin-bottom: 35px; 
+    font-size: 18px; 
+    border-left: 12px solid var(--primary); 
+    text-align: left;
+    color: var(--dark);
+    line-height: 1.6;
+  }
+
+  .bot-img-large { width: 180px; height: auto; margin-bottom: 25px; }
+  .bot-img-mini { width: 110px; height: auto; margin-bottom: 20px; }
+  
+  .progress-bar { width: 100%; background: #edf2f7; height: 14px; border-radius: 20px; margin-bottom: 50px; overflow: hidden; }
+  .progress-fill { background: linear-gradient(90deg, #00e5ff, #00b8d4); height: 100%; width: 5%; transition: width 0.8s ease; }
+
+  /* Buttons Optik */
+  .opt-btn { 
+    width: 100%; padding: 22px 30px; margin-bottom: 15px; 
+    border: 2px solid #e2e8f0 !important; border-radius: 25px; 
+    cursor: pointer; transition: all 0.2s ease; 
+    font-size: 18px; text-align: left; font-weight: 600; 
+    background: #fff; color: var(--dark);
+  }
+  .opt-btn-primary { 
+    width: 100%; max-width: 400px; padding: 22px; 
+    background: var(--primary) !important; color: white !important; 
+    border: none !important; border-radius: 100px; 
+    font-weight: 800; font-size: 22px; cursor: pointer;
+    box-shadow: 0 15px 35px var(--primary-glow); transition: var(--transition);
+  }
+  .opt-btn-primary:hover { transform: translateY(-4px); box-shadow: 0 20px 45px var(--primary-glow); }
+  .opt-btn:hover { border-color: var(--primary) !important; background: var(--primary-soft) !important; transform: translateX(8px); }
+
+  /* Animation gegen Ruckeln */
+  #quiz-content-stepper { transition: opacity 0.4s ease, transform 0.4s ease; }
+  .fade-out { opacity: 0; transform: translateY(-10px); }
+  .fade-in { opacity: 1; transform: translateY(0); }
+
+  @keyframes pulsate { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+  .pulsate { animation: pulsate 2s infinite ease-in-out; }
+
+  .hidden { display: none !important; }
+  .chart-container { position: relative; height: 350px; width: 100%; margin: 30px 0; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+(function() {
+    const engineConfig = {
+        profiles: {
+            sicherheitsorientiert: { risiko: 12, sicherheit: 85, zeit: 50, aktiv: 20, rational: 50, opportun: 10, label: "Sicherheitsorientiert" },
+            ausgewogen: { risiko: 45, sicherheit: 55, zeit: 60, aktiv: 45, rational: 60, opportun: 30, label: "Ausgewogen" },
+            wachstumsorientiert: { risiko: 75, sicherheit: 35, zeit: 85, aktiv: 55, rational: 50, opportun: 40, label: "Wachstumsorientiert" },
+            strategischer_rationalist: { risiko: 50, sicherheit: 40, zeit: 70, aktiv: 70, rational: 90, opportun: 35, label: "Strategischer Rationalist" },
+            opportunist: { risiko: 92, sicherheit: 15, zeit: 40, aktiv: 80, rational: 30, opportun: 90, label: "Opportunist" }
+        },
+        matrix: {
+            Q1:{risiko:-2, sicherheit:3}, Q2:{risiko:3, sicherheit:-2, opportun:1}, Q3:{sicherheit:1, zeit:3}, Q4:{rational:3}, Q5:{risiko:1, aktiv:3},
+            Q6:{risiko:3, sicherheit:-2, opportun:2}, Q7:{risiko:1, aktiv:1, rational:1}, Q8:{risiko:-3, sicherheit:4}, Q9:{rational:3}, Q10:{risiko:2, opportun:3},
+            Q11:{rational:3}, Q12:{rational:2}, Q13:{sicherheit:2}, Q14:{rational:3}, Q15:{aktiv:4}, Q16:{zeit:4}, Q17:{zeit:3, risiko:2}, Q18:{sicherheit:2}, Q19:{opportun:3}, Q20:{zeit:4}
+        }
+    };
+
+    const questions = [
+        { id: "Q1", text: "Du verlierst 100€ auf dem Weg zum Essen. Wie fühlst du dich?", options: [{v:1, t:"Der Abend ist gelaufen."}, {v:3, t:"Ärgerlich, aber okay."}, {v:5, t:"Passiert halt."}] },
+        { id: "Q2", text: "Ein 'Geheimtipp' verspricht Verdopplung. Dein Gedanke?", options: [{v:1, t:"Viel zu riskant für mich."}, {v:3, t:"Kleine Summe testen."}, {v:5, t:"Mega Chance, ich bin dabei!"}] },
+        { id: "Q3", text: "Wie wichtig ist dir eine Anlagedauer von 10+ Jahren?", options: [{v:1, t:"Gar nicht."}, {v:3, t:"Eher wichtig."}, {v:5, t:"Absolut essenziell."}] },
+        { id: "Q4", text: "Triffst du Entscheidungen eher datenbasiert?", options: [{v:1, t:"Eher Bauchgefühl."}, {v:3, t:"Teils-teils."}, {v:5, t:"Rein datenbasiert."}] },
+        { id: "Q5", text: "Möchtest du dich aktiv mit deinen Finanzen beschäftigen?", options: [{v:1, t:"Nein, lieber passiv."}, {v:3, t:"Gelegentlich."}, {v:5, t:"Sehr aktiv."}] },
+        { id: "Q6", text: "Siehst du Volatilität eher als Risiko oder Chance?", options: [{v:1, t:"Großes Risiko."}, {v:3, t:"Neutral."}, {v:5, t:"Große Chance."}] },
+        { id: "Q7", text: "Wie viel Erfahrung hast du bereits an der Börse?", options: [{v:1, t:"Anfänger."}, {v:3, t:"Fortgeschritten."}, {v:5, t:"Profi."}] },
+        { id: "Q8", text: "Ist dir Sicherheit wichtiger als Performance?", options: [{v:1, t:"Sicherheit vorrangig."}, {v:3, t:"Ausgewogen."}, {v:5, t:"Performance zählt."}] },
+        { id: "Q9", text: "Handelst du lieber streng nach einem Regelwerk?", options: [{v:1, t:"Nein, intuitiv."}, {v:3, t:"Teils-teils."}, {v:5, t:"Ja, strikt."}] },
+        { id: "Q10", text: "Nutzt du gerne kurzfristige Gewinnchancen?", options: [{v:1, t:"Nein, zu riskant."}, {v:3, t:"Ab und zu."}, {v:5, t:"Ja, immer."}] },
+        { id: "Q11", text: "Analysierst du Bilanzen oder Geschäftsberichte?", options: [{v:1, t:"Nie."}, {v:3, t:"Gelegentlich."}, {v:5, t:"Regelmäßig."}] },
+        { id: "Q12", text: "Wie reagierst du auf Medien-Hypes?", options: [{v:1, t:"Ich mache mit."}, {v:3, t:"Beobachte nur."}, {v:5, t:"Bleibe rational."}] },
+        { id: "Q13", text: "Besitzt du einen Notgroschen?", options: [{v:1, t:"Nein."}, {v:3, t:"Im Aufbau."}, {v:5, t:"Ja, voll gedeckt."}] },
+        { id: "Q14", text: "Ist Streuung (Diversifikation) für dich Pflicht?", options: [{v:1, t:"Nein."}, {v:3, t:"Ja, etwas."}, {v:5, t:"Absolut Pflicht."}] },
+        { id: "Q15", text: "Wie oft checkst du dein Depot?", options: [{v:1, t:"Einmal im Jahr."}, {v:3, t:"Wöchentlich."}, {v:5, t:"Täglich."}] },
+        { id: "Q16", text: "Wann brauchst du das investierte Geld?", options: [{v:1, t:"In 1-2 Jahren."}, {v:3, t:"In 5-10 Jahren."}, {v:5, t:"In 15+ Jahren."}] },
+        { id: "Q17", text: "Würdest du bei -20% Marktrückgang nachkaufen?", options: [{v:1, t:"Nein, verkaufen."}, {v:3, t:"Abwarten."}, {v:5, t:"Ja, definitiv."}] },
+        { id: "Q18", text: "Wie sicher ist dein monatliches Einkommen?", options: [{v:1, t:"Unsicher."}, {v:3, t:"Solide."}, {v:5, t:"Sehr sicher."}] },
+        { id: "Q19", text: "Reizen dich Krypto oder Hebelprodukte?", options: [{v:1, t:"Gar nicht."}, {v:3, t:"Bisschen."}, {v:5, t:"Ja, sehr."}] },
+        { id: "Q20", text: "Wie geduldig bist du bei deinen Zielen?", options: [{v:1, t:"Eher ungeduldig."}, {v:3, t:"Normal."}, {v:5, t:"Sehr geduldig."}] }
+    ];
+
+    let currentIdx = 0; let userAnswers = {}; let userName = '';
+
+    const startAction = () => {
+        const input = document.getElementById('user-name');
+        userName = input.value.trim().replace(/<[^>]*>?/gm, '');
+        if (!userName) { alert('Bitte nenne mir deinen Namen.'); return; }
+        
+        const nameContainer = document.getElementById('name-container');
+        nameContainer.classList.remove('active');
+        setTimeout(() => {
+            nameContainer.classList.add('hidden');
+            const quizContainer = document.getElementById('quiz-container');
+            quizContainer.classList.remove('hidden');
+            setTimeout(() => quizContainer.classList.add('active'), 50);
+            render();
+        }, 400);
+    };
+
+    document.getElementById('start-quiz-btn').onclick = startAction;
+    document.getElementById('user-name').onkeypress = (e) => { if(e.key === 'Enter') startAction(); };
+
+    window.selectOption = function(val) {
+        userAnswers[questions[currentIdx].id] = val;
+        currentIdx++;
+        
+        const stepper = document.getElementById('quiz-content-stepper');
+        stepper.classList.add('fade-out');
+
+        setTimeout(() => {
+            if(currentIdx < questions.length && currentIdx % 5 === 0) showInter();
+            else if(currentIdx < questions.length) {
+                render();
+                stepper.classList.remove('fade-out');
+            } else finish();
+        }, 400);
+    };
+
+    function render() {
+        const q = questions[currentIdx];
+        document.getElementById('q-text').innerText = q.text;
+        document.getElementById('options-wrapper').innerHTML = q.options.map(o => `<button class="opt-btn" onclick="selectOption(${o.v})">${o.t}</button>`).join('');
+        document.getElementById('progress-fill').style.width = Math.max(5, (currentIdx / questions.length) * 100) + '%';
+    }
+
+    function showInter() {
+        const msgs = [
+            `Stark, ${userName}! Die ersten 25% sind analysiert. Dein Profil nimmt Form an.`,
+            `Halbzeit! Du machst das hervorragend, ${userName}. Jetzt kommen wir zu den Details.`,
+            `Fast geschafft! Nur noch der Endspurt für deine persönliche Strategie.`
+        ];
+        const idx = (currentIdx / 5) - 1;
+        
+        document.getElementById('q-text').classList.add('hidden');
+        document.getElementById('options-wrapper').classList.add('hidden');
+        document.getElementById('bot-text').innerHTML = `<strong>${msgs[idx]}</strong><br>Ich werte deine bisherigen Daten aus...`;
+        document.getElementById('bot-bubble').classList.remove('hidden');
+        document.getElementById('quiz-content-stepper').classList.remove('fade-out');
+
+        setTimeout(() => {
+            document.getElementById('quiz-content-stepper').classList.add('fade-out');
+            setTimeout(() => {
+                document.getElementById('bot-bubble').classList.add('hidden');
+                document.getElementById('q-text').classList.remove('hidden');
+                document.getElementById('options-wrapper').classList.remove('hidden');
+                render();
+                document.getElementById('quiz-content-stepper').classList.remove('fade-out');
+            }, 400);
+        }, 5000);
+    }
+
+    function finish() {
+        const quizContainer = document.getElementById('quiz-container');
+        quizContainer.classList.remove('active');
+        
+        setTimeout(() => {
+            quizContainer.classList.add('hidden');
+            const resContainer = document.getElementById('result-container');
+            resContainer.classList.remove('hidden');
+            setTimeout(() => resContainer.classList.add('active'), 50);
+
+            // -- Berechnung Logik --
+            let sc = { risiko: 0, sicherheit: 0, zeit: 0, aktiv: 0, rational: 0, opportun: 0 };
+            for (let id in userAnswers) {
+                let val = userAnswers[id] - 3;
+                let weights = engineConfig.matrix[id];
+                if(weights) for(let d in weights) sc[d] += val * weights[d];
+            }
+
+            const dims = {
+                risiko: Math.min(100, Math.max(0, 50 + (sc.risiko * 5.5))),
+                sicherheit: Math.min(100, Math.max(0, 50 + (sc.sicherheit * 5.5))),
+                zeit: Math.min(100, Math.max(0, 50 + (sc.zeit * 5.5))),
+                aktiv: Math.min(100, Math.max(0, 50 + (sc.aktiv * 5.5))),
+                rational: Math.min(100, Math.max(0, 50 + (sc.rational * 5.5))),
+                opportun: Math.min(100, Math.max(0, 50 + (sc.opportun * 5.5)))
+            };
+
+            let profiles = {...engineConfig.profiles};
+            let bestMatch = "ausgewogen"; let minD = Infinity;
+            for (let [name, p] of Object.entries(profiles)) {
+                let d = Math.sqrt(Math.pow(dims.risiko-p.risiko,2) + Math.pow(dims.sicherheit-p.sicherheit,2));
+                if(d < minD) { minD = d; bestMatch = name; }
+            }
+
+            const finalLabel = engineConfig.profiles[bestMatch].label;
+            resContainer.innerHTML = `
+                <div class="bot-header"><img src="https://www.investalo.de/wp-content/uploads/ohnehintergrund_Quiz.png" alt="Bot" class="bot-img-mini"></div>
+                <h2 class="iv-title">Analyse abgeschlossen!</h2>
+                <div style="font-size: 1.4rem; margin-bottom: 20px;">Dein Typ: <strong style="color:var(--primary); font-size: 1.8rem;">${finalLabel}</strong></div>
+                <div class="chart-container"><canvas id="radarChart"></canvas></div>
+                <div id="ai-box"><div id="ai-loading"><div class="loader"></div> KI-Strategie für ${userName} wird generiert...</div><div id="ai-content"></div></div>
+                <button onclick="window.location.reload()" style="background:none; border:none; text-decoration:underline; color:#999; cursor:pointer; margin-top:30px;">Analyse neu starten</button>
+            `;
+
+            new Chart(document.getElementById('radarChart'), {
+                type: 'radar',
+                data: {
+                    labels: ['Risiko', 'Sicherheit', 'Zeit', 'Aktivität', 'Rationalität', 'Chance'],
+                    datasets: [{ 
+                        data: [dims.risiko, dims.sicherheit, dims.zeit, dims.aktiv, dims.rational, dims.opportun], 
+                        backgroundColor: 'rgba(0, 229, 255, 0.2)', borderColor: '#00e5ff', borderWidth: 4, pointBackgroundColor: '#00e5ff' 
+                    }]
+                },
+                options: { scales: { r: { min: 0, max: 100, ticks: { display: false } } }, plugins: { legend: { display: false } }, maintainAspectRatio: false }
+            });
+
+            const fd = new FormData();
+            fd.append('action', 'get_investalo_analysis');
+            fd.append('type_label', finalLabel);
+            fd.append('user_name', userName);
+            for(let dim in dims) fd.append(`dimensions[${dim}]`, Math.round(dims[dim]));
+
+            fetch('/wp-admin/admin-ajax.php', { method: 'POST', body: fd })
+                .then(r => r.json())
+                .then(d => {
+                    document.getElementById('ai-loading').classList.add('hidden');
+                    if(d.success) {
+                        let text = d.data; let i = 0; let target = document.getElementById('ai-content');
+                        function typeWriter() { if (i < text.length) { target.innerHTML += text.charAt(i) === "\n" ? "<br>" : text.charAt(i); i++; setTimeout(typeWriter, 15); } }
+                        typeWriter();
+                    }
+                });
+        }, 400);
+    }
+})();
+</script>
